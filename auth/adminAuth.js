@@ -24,7 +24,7 @@ const Admins = require("../models/admin_user");
  * HTTP/1.1 200 OK
  * {
  *  "user": {
- *    "id": 5,
+ *    "id": "123e4567-e89b-12d3-a456-426655440000",
  *    "username": "example",
  *    "email": "example@gmonk.com",
  *    "password": "noneya:)",
@@ -34,7 +34,7 @@ const Admins = require("../models/admin_user");
  * }
  */
 
-router.post("/admins/login", (req, res) => {
+router.post("/admin/login", (req, res) => {
   const { email, password } = req.body;
   if (email && password) {
     Admins.findByEmail(email)
@@ -64,8 +64,8 @@ router.post("/admins/login", (req, res) => {
 });
 
 /**
- * @api {post} /api/auth/admin/login Admin Login Request
- * @apiName Admin Login
+ * @api {post} /api/auth/admin/register Admin Register Request
+ * @apiName Admin Register
  * @apiGroup Auth
  *
  *
@@ -74,18 +74,18 @@ router.post("/admins/login", (req, res) => {
  *
  * @apiParamExample Example Body:
  *  {
- *    "first_name": "example",
- *	  "last_name": "doe",
+ *    "firstName": "example",
+ *	  "lastName": "doe",
  *    "email": "example@random.com",
  *    "password": "password",
- *    "role_id": "123abc"
+ *    "roleId": "123abc"
  *  }
  *
  * @apiSuccessExample Successful Response:
- * HTTP/1.1 200 OK
+ * HTTP/1.1 201 CREATED
  * {
  *  "user": {
- *    "id": 5,
+ *    "id": "123e4567-e89b-12d3-a456-426655440000",
  *    "username": "example",
  *    "email": "example@random.com",
  *    "password": "noneya:)",
@@ -95,38 +95,41 @@ router.post("/admins/login", (req, res) => {
  * }
  */
 
-router.post("/admins/register", (req, res) => {
+router.post("/admin/register", (req, res) => {
   let credentials = req.body;
   if (
     credentials.email &&
     credentials.password &&
-    credentials.role_id &&
-    credentials.first_name &&
-    credentials.last_name
+    credentials.roleId &&
+    credentials.firstName &&
+    credentials.lastName
   ) {
     credentials.password = bcrypt.hashSync(credentials.password, 14);
 
-    credentials.first_name = credentials.first_name.charAt(0).toUpperCase() + credentials.first_name.substr(1).toLowerCase()
-    credentials.last_name = credentials.last_name.charAt(0).toUpperCase() + credentials.last_name.substr(1).toLowerCase()
+    // ? NORMALIZING NAMES AND ASSIGNING UUID
+
+    credentials.firstName = credentials.firstName.charAt(0).toUpperCase() + credentials.firstName.substr(1).toLowerCase()
+    credentials.lastName = credentials.lastName.charAt(0).toUpperCase() + credentials.lastName.substr(1).toLowerCase()
     credentials.id = uuid();
-    
+
     Admins.add(credentials)
       .then(user => {
         const token = generateToken(user);
-        res.status(200).json({
+        res.status(201).json({
           user: { ...user, password: "noneya:)" },
           token: token
         });
       })
       .catch(err =>
         res.status(500).json({
-          message: "We couldn't process your login at the moment"
+          message: "We couldn't process your registration at the moment"
         })
       );
   } else {
     res.status(400).json({
-      message: "Please provide your email and password."
+      message: "Please provide all credentials."
     });
   }
 });
+
 module.exports = router;
