@@ -8,6 +8,7 @@
     "test": "tests"
   },
   "scripts": {
+    "dev": "nodemon main.js",
     "test": "cross-env DB_ENV=testing jest --watch",
     "server": "nodemon ./bin/www.js",
     "start": "knex migrate:rollback && knex migrate:latest && knex seed:run && node ./bin/www.js",
@@ -25,7 +26,6 @@
   },
   "homepage": "https://github.com/Lambda-School-Labs/mission-control-be#readme",
   "dependencies": {
-    "accesscontrol": "^2.2.1",
     "aws-sdk": "latest",
     "bcryptjs": "^2.4.3",
     "body-parser": "latest",
